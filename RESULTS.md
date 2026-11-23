@@ -8,6 +8,10 @@ branch: `research/m0-reproduction`. Hosted fork:
 as a fork of `anhthuan1999/varsplat` through the authenticated GitHub API.
 Source analysis and ideas are in [M0_CODE_MAP.md](docs/M0_CODE_MAP.md).
 Original source, configs and native kernels remain unchanged.
+The older clean cluster checkout at commit `65e3623b9e0e602be9176e41bc914bde8bf48411`
+and current upstream have identical Git tree `5cd3104976094fa33c2601e17becd314efa83529`.
+Commit IDs alone therefore overstate their source difference. The separate older
+`varsplat-enhanced` working tree is modified; its runs are not pristine baseline evidence.
 
 **Baseline reproduction is incomplete. No improvement is claimed.**
 
@@ -70,8 +74,9 @@ The pinned `cuda_rasterizer/backward.cu` explicitly uses the first-channel adjoi
 for every channel and multiplies its contribution by 2, explaining both the cross-channel
 leakage and the doubled red derivative in this test.
 
-Local validation: 11 unittest checks passed (strict SE(3), seed aggregation, source/config/input
-comparability, non-finite values, profiler failure propagation). Python compilation passed.
+Local validation: 14 unittest checks passed (strict SE(3), seed aggregation, source/config/input
+comparability, non-finite values, profiler failure propagation, exact-process memory
+attribution and time-window coverage). Python compilation and Bash syntax checks passed.
 Runtime packages are recorded with import-path precedence in new baseline reports;
 the older environment diagnostic's flat distribution listing can show a shadowed version
 (e.g. OmegaConf) and must not be treated as the imported module version.
