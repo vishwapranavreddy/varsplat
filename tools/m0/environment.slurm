@@ -1,0 +1,30 @@
+#!/bin/bash
+#SBATCH --job-name=varsplat-m0-env
+#SBATCH --account=mtech
+#SBATCH --partition=gpu-A100
+#SBATCH --gres=gpu:1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=4
+#SBATCH --mem=20G
+#SBATCH --time=00:30:00
+cd "$TMPDIR" || exit 1
+set -euo pipefail
+mkdir -p results code
+cp -r --no-preserve=all "$SLURM_SUBMIT_DIR/src" "$SLURM_SUBMIT_DIR/configs" "$SLURM_SUBMIT_DIR/tools" code/
+cp -r --no-preserve=all "$HOME/projects/varsplat-m0-environment-20261123/wheels" wheels
+export PROJECT_ROOT="$HOME/projects/varsplat-enhanced"
+export PYTHONDONTWRITEBYTECODE=1
+export MPLCONFIGDIR="$TMPDIR/mpl"
+export XDG_CACHE_HOME="$TMPDIR/cache"
+export PIP_CACHE_DIR="$TMPDIR/pip-cache"
+apptainer exec --nv --bind "$TMPDIR:$TMPDIR" /userhome/containers/jupyter.sif bash -c '
+set -euo pipefail
+source "$PROJECT_ROOT/scripts/env.sh"
+cd "$TMPDIR/code"
+python -m pip install --no-index --find-links "$TMPDIR/wheels" --no-build-isolation --no-deps --target "$TMPDIR/results/runtime" --report "$TMPDIR/results/install.json" \
+  faiss-gpu==1.16.0 python-pycg==1.0.3 pyquaternion==0.9.9 omegaconf==2.3.0 \
+  antlr4-python3-runtime==4.9.3 calmsize==0.1.3 screeninfo==0.8.1
+export PYTHONPATH="$PWD:$TMPDIR/results/runtime:$PROJECT_ROOT/thirdparty/Hierarchical-Localization:$PROJECT_ROOT/thirdparty/evaluate_3d_reconstruction_lib"
+python -B tools/m0/check_environment.py --output "$TMPDIR/results/environment.json"
+python -B tools/m0/preflight.py runtime --output "$TMPDIR/results/runtime.json"
+' > results/console.log 2>&1
