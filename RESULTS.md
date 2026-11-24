@@ -13,14 +13,63 @@ and current upstream have identical Git tree `5cd3104976094fa33c2601e17becd314ef
 Commit IDs alone therefore overstate their source difference. The separate older
 `varsplat-enhanced` working tree is modified; its runs are not pristine baseline evidence.
 
-**Baseline reproduction is incomplete. No improvement is claimed.**
+**Two full seed-0 baselines are complete. Multi-seed/multi-scene reproduction is
+incomplete. No algorithm improvement is claimed.**
 
 | Experiment | Data / repetitions | ATE SE(3), cm | SLAM time / memory / rendering | Interpretation |
 |---|---|---:|---|---|
 | Paper reference | TUM fr1/desk | 1.80 | Not remeasured | [VarSplat paper](https://arxiv.org/html/2603.09673v1), not our result |
 | Author saved trajectory, job 6814 | 592 associated poses, one existing checkpoint | 1.8032138 | Not measured | Independent trajectory re-evaluation only; not a fresh SLAM run |
 | Same saved trajectory, exported keyframes | 525 poses | 1.8551259 | Not measured | Demonstrates sensitivity to evaluation coverage |
-| Fresh upstream baseline | Seeds 0, 1, 2 planned | Pending | Pending | Do not compute deltas from the saved checkpoint |
+| Fresh author-config baseline, job 6826 | fr1/desk, seed 0, 592 poses | 2.493786 | See measured tables below | Completed; one seed is insufficient to establish paper reproduction |
+| Fresh repository-config baseline, job 6827 | fr1/desk, seed 0, 592 poses | 1.493297 | See measured tables below | Completed; unchanged upstream algorithm, not a proposed improvement |
+
+### Completed seed-0 measurements
+
+All measurements below use the unchanged source and original rasterizers on A100
+PCIe 40 GB. Seeds 1 and 2 are required before mean/std or acceptance decisions.
+The strict SE(3) ATE agrees with the independent upstream evaluator within 1e-9 m
+for both runs, with exactly 592 compared poses.
+
+| Configuration / job | SLAM wall, s | s/input frame | Offline evaluation, s | Full batch elapsed, s | Sampled process GPU maximum, GiB | PyTorch allocated / reserved maximum, GiB |
+|---|---:|---:|---:|---:|---:|---:|
+| Author / 6826 | 3372.453 | 5.696711 | 425.621 | 3870 | 3.554688 | 1.192357 / 1.511719 |
+| Repository / 6827 | 2740.182 | 4.628685 | 408.462 | 3216 | 3.533203 | 1.200126 / 1.500000 |
+
+SLAM wall includes tracking, mapping, loop closure, pose correction and upstream
+I/O/diagnostics. Batch elapsed includes staging and preflight as well. PyTorch's
+reported SLAM maximum includes initialization because its peak counter starts before
+initialization; driver samples are restricted to the exact SLAM interval and PID.
+Driver sampling had maximum gaps of 0.509 / 0.511 seconds. It is a sampled maximum,
+not an exact peak and not the sum of memory used by both jobs.
+
+| Native upstream rendering protocol | Frames | PSNR, dB | MS-SSIM | Alex LPIPS | Depth L1, m |
+|---|---:|---:|---:|---:|---:|
+| Author config, seed 0 | 520 | 21.931347 | 0.846407 | 0.311453 | 0.191948 |
+| Repository config, seed 0 | 523 | 22.538380 | 0.864621 | 0.287795 | 0.190356 |
+
+These native scores cover different exported frame IDs. They are retained for
+paper-protocol auditing, not pooled as a matched-coverage comparison.
+
+| Supplemental all-associated-frame protocol | Replay job | Frames | PSNR, dB | MS-SSIM | Alex LPIPS | Depth L1, m |
+|---|---|---:|---:|---:|---:|---:|
+| Author config, seed 0 | 6828 | 592 | 22.116970 | 0.849789 | 0.314283 | 0.173973 |
+| Repository config, seed 0 | 6829 | 592 | 22.595683 | 0.864307 | 0.294486 | 0.173177 |
+
+The supplemental replay reloads the saved global PLY without retraining. Its native
+frame subset reproduced each upstream mean: maximum absolute discrepancy across
+both runs was 5.69e-7 dB PSNR, 7.34e-7 MS-SSIM, 1.09e-8 LPIPS and zero depth L1.
+Full replay jobs took 64 / 57 seconds; timed rendering/metrics took 33.022 / 27.909 s.
+These times are separate from the baseline SLAM/evaluation times. This is observed-view
+quality, not a held-out-scene or novel-view generalization result.
+
+Evidence: byte-exact `../cluster_preflight/6826/` and `6827/` benchmark, upstream
+metric and memory files; `6828/fixed_frames.json` and `6829/fixed_frames.json` contain
+per-frame quality, baseline/model/input hashes and parity checks. Report hashes in
+the replay were checked against the downloaded baseline bytes. Earlier text-transfer
+newline conversion was corrected in the retrieval helper; numerical results did not
+change. Seed-1 jobs **6830/6831** were submitted with the same frozen Python source,
+native environment and input bytes, after the account queue was verified empty.
 
 Raw evidence: `../cluster_preflight/6814/runtime.json` and
 `../cluster_preflight/6815/variance.json`. Author trajectory SHA-256:
@@ -56,8 +105,8 @@ and reached tracking (frames 159 / 194 at the 14-minute check); no SLAM source c
 The checks cover actual upstream Evo plotting, two synthetic refinement steps,
 offline AlexNet LPIPS and MS-SSIM, and both NumPy/Torch GPU FAISS operations.
 Synthetic smoke-test values are not benchmark results.
-Both jobs subsequently completed their first pose graph and diagnostic plots;
-the 20-minute check observed frames 224 / 295. Full metrics remain pending.
+Both jobs subsequently completed full SLAM and upstream evaluation; measured
+seed-0 results and the successful fixed-frame audits are recorded above.
 Whole-home usage was remeasured at 48,782,098,432 bytes before submission; 12 GB of
 return space is reserved for the pair, below the 200 GB hard cap.
 
@@ -98,14 +147,15 @@ Local validation: 14 unittest checks passed (strict SE(3), seed aggregation, sou
 comparability, non-finite values, profiler failure propagation, exact-process memory
 attribution and time-window coverage). Python compilation and Bash syntax checks passed.
 Two additional CPU checks validate fixed-frame metric coverage and rejection of
-missing/duplicate/non-finite measurements (16 total checks). A supplemental GPU
-replay script is prepared but not yet validated on a completed baseline; it reloads
-the upstream global PLY and requires native-subset quality parity before accepting
-full-sequence observed-view quality. No quality gain is claimed from this addition.
+missing/duplicate/non-finite measurements (16 total checks). The supplemental GPU
+replay passed native-subset parity on both completed seed-0 baselines, as detailed
+above. No quality gain is claimed from this evaluation-tool addition.
 Three staging-boundary checks also pass (19 CPU checks total). Input restoration,
 Replica archive contents and unresolved reference assets are tracked in
-[M0_INPUTS.md](docs/M0_INPUTS.md). The four remaining TUM downloads are in progress,
-not verified inputs yet.
+[M0_INPUTS.md](docs/M0_INPUTS.md). TUM fr1/desk2 is now checksum-verified; the three
+other transfers resumed after the SSH output pipe disconnected during the approval
+interruption. They log persistently on the cluster and remain unverified until their
+final checksum passes.
 Runtime packages are recorded with import-path precedence in new baseline reports;
 the older environment diagnostic's flat distribution listing can show a shadowed version
 (e.g. OmegaConf) and must not be treated as the imported module version.

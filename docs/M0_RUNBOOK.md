@@ -48,7 +48,7 @@ python -m compileall -q tools/m0
 ```
 
 The two source-preserving configurations have different uncertainty thresholds. The
-current deployment directory is `~/projects/varsplat-m0-baselines-20261124-r2`.
+seed-0 deployment directory is `~/projects/varsplat-m0-baselines-20261124-r2`.
 Seeds 0, 1 and 2 must be run separately for each configuration. For example, **after
 both account slots become free and storage is checked**:
 
@@ -60,8 +60,10 @@ sbatch --output='%j.out' --error='%j.err' tools/m0/baseline.slurm repository 1 w
 ```
 
 Do not repeat a submission when its response is uncertain. Reconcile `squeue`, `sacct`,
-the submission receipt and the Slurm comment first. Seed-0 jobs 6826/6827 already have
-submission receipts. Do not resubmit them with the example commands.
+the submission receipt and the Slurm comment first. Seed-0 jobs 6826/6827 completed;
+their fixed-frame replay jobs 6828/6829 passed parity. Seed-1 jobs 6830/6831 are running
+from `~/projects/varsplat-m0-seed1-20261124`, with byte-identical baseline Python
+source. Do not repeat those submissions with the example commands.
 
 The batch script executes the following inside the staged repository/environment:
 
@@ -158,8 +160,8 @@ python -B tools/analysis/fixed_frames.py \
 
 The accompanying `fixed_frames.slurm` stages the verified fr1/desk assets and accepts
 one completed baseline job ID. Deploy it with the same frozen source as the baseline.
-It has passed CPU coverage checks and Bash syntax validation; full GPU replay remains
-pending. Do not execute it concurrently on a GPU running a timed baseline. Keep its
+It passed CPU coverage checks, Bash syntax validation and full GPU replay/parity
+on seed-0 jobs 6826/6827. Do not execute it concurrently on a GPU running a timed baseline. Keep its
 wall time separate from SLAM and from the original upstream evaluation.
 
 ## Remaining M0 work

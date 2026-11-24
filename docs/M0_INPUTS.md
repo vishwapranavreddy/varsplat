@@ -7,8 +7,8 @@ ground-truth trajectory outside the timed SLAM interval.
 
 | Dataset | Required scenes | Current evidence | Remaining preparation |
 |---|---|---|---|
-| TUM RGB-D | fr1/desk | Restored archive matches previous cleanup SHA-256; 613 RGB and 595 depth PNG headers checked; upstream associates 592 frames | Running two seed-0 configuration arms; seeds 1/2 remain |
-| TUM RGB-D | fr1/desk2, fr1/room, fr2/xyz, fr3/long_office_household | Prior verified checksums and official URLs recovered from the other chat's cleanup records; HTTPS HEAD lengths match | Four resumable archive transfers in progress, 4,817,237,354 bytes total; not yet checksum-verified or extracted in this campaign |
+| TUM RGB-D | fr1/desk | Restored archive matches previous cleanup SHA-256; 613 RGB and 595 depth PNG headers checked; upstream associates 592 frames | Both seed-0 arms and fixed-frame parity audits completed; seed 1 running; seed 2 remains |
+| TUM RGB-D | fr1/desk2, fr1/room, fr2/xyz, fr3/long_office_household | Prior verified checksums and official URLs recovered from the other chat's cleanup records; HTTPS HEAD lengths match | Desk2 archive verified. Other three transfers resumed with persistent cluster logging after a disconnected SSH pipe; final checksums and scratch extraction remain |
 | Replica | room0/1/2, office0/1/2/3/4 | Existing 12,442,855,671-byte archive; prior checksum receipt; current ZIP index has 4,001 files per scene | Scratch extraction and current-run hashing; headless mesh evaluation preflight (reference files now verified) |
 | ScanNet | 0000_00, 0059_00, 0106_00, 0169_00, 0181_00, 0207_00 | Scene configs present | Dataset access/location remains unresolved; no usable input assets found in inspected locations |
 | ScanNet++ | 8b5caf3398, b20a261fdf, 2e74812d00, 281bc17764, fb05e13ad1 | Scene configs present | Dataset access/location remains unresolved; needs DSLR train/test metadata and undistorted RGB/depth |
