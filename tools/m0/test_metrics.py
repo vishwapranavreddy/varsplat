@@ -39,10 +39,20 @@ class MetricsTests(unittest.TestCase):
 
     def test_upstream_registration_argument_binding(self):
         source = Path(__file__).resolve().parents[2] / 'src/gsr/solver.py'
-        function = next(n for n in ast.parse(source.read_text()).body if isinstance(n, ast.FunctionDef) and n.name == 'viewpoint_localizer')
+        tree = ast.parse(source.read_text())
+        function = next(n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == 'viewpoint_localizer')
         names = [a.arg for a in function.args.args]
+        defaults = [ast.literal_eval(x) for x in function.args.defaults]
+        required = len(names) - len(defaults)
         signature = inspect.Signature([inspect.Parameter(n, inspect.Parameter.POSITIONAL_OR_KEYWORD,
-            default=inspect.Parameter.empty if i < 2 else [1e-3, True, 10., 3.][i-2]) for i, n in enumerate(names)])
+            default=inspect.Parameter.empty if i < required else defaults[i-required]) for i, n in enumerate(names)])
+        calls = [n for n in ast.walk(tree) if isinstance(n, ast.Call) and isinstance(n.func, ast.Name) and n.func.id == 'viewpoint_localizer']
+        self.assertTrue(calls)
+        for call in calls:
+            self.assertEqual(len(call.args), 5)
+            self.assertFalse(call.keywords)
+            self.assertEqual(call.args[3].id, 'tau_registration')
+            self.assertEqual(call.args[4].id, 'w_limit')
         bound = signature.bind('camera', 'map', 1e-3, 50., 3.)
         bound.apply_defaults()
         self.assertEqual(bound.arguments['use_variance'], 50.)

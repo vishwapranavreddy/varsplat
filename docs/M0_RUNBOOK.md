@@ -25,6 +25,8 @@ read-only. Only `results/` returns automatically to `~/job_results/JOBID`.
 - Source: upstream `4a21a0aaade40b7c42d47181108e49a8a0e695f2`.
 - Python 3.10.21 / Torch 2.6.0+cu126 / NumPy 1.26.4 / A100 PCIe 40 GB.
 - FAISS GPU 1.16.0 overlay: `~/job_results/6817/runtime`; GPU search validated.
+- Evaluation pins: `evo==1.11.0`, `matplotlib==3.5.1`, installed offline into each
+  job's separate scratch overlay. The older evo 1.31.1 failed at the first PGO diagnostic.
 - Baseline native extensions remain unchanged, with binary hashes in each report.
 - NetVLAD official checkpoint from the existing cache; SHA-256 recorded.
 - AlexNet metric weights staged through verified HTTPS and official torchvision hash
@@ -41,24 +43,24 @@ internet failed TLS hostname verification, so later jobs install/use packages of
 Local CPU checks, from this repository:
 
 ```powershell
-python -m unittest tools.m0.test_metrics tools.m0.test_aggregate -v
+python -m unittest tools.m0.test_metrics tools.m0.test_aggregate tools.analysis.test_memory -v
 python -m compileall -q tools/m0
 ```
 
 The two source-preserving configurations have different uncertainty thresholds. The
-current deployment directory is `~/projects/varsplat-m0-baselines-20261123-r1`.
+current deployment directory is `~/projects/varsplat-m0-baselines-20261124-r2`.
 Seeds 0, 1 and 2 must be run separately for each configuration. For example, **after
 both account slots become free and storage is checked**:
 
 ```bash
-cd ~/projects/varsplat-m0-baselines-20261123-r1
+cd ~/projects/varsplat-m0-baselines-20261124-r2
 squeue -u "$USER"
 sbatch --output='%j.out' --error='%j.err' tools/m0/baseline.slurm author 1 wall
 sbatch --output='%j.out' --error='%j.err' tools/m0/baseline.slurm repository 1 wall
 ```
 
 Do not repeat a submission when its response is uncertain. Reconcile `squeue`, `sacct`,
-the submission receipt and the Slurm comment first. Seed-0 jobs 6820/6821 already have
+the submission receipt and the Slurm comment first. Seed-0 jobs 6826/6827 already have
 submission receipts. Do not resubmit them with the example commands.
 
 The batch script executes the following inside the staged repository/environment:

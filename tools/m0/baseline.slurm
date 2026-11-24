@@ -20,12 +20,15 @@ mkdir -p results code home cache/torch/hub/netvlad cache/torch/hub/checkpoints
 cp -r --no-preserve=all "$SLURM_SUBMIT_DIR/src" "$SLURM_SUBMIT_DIR/configs" "$SLURM_SUBMIT_DIR/tools" code/
 cp --no-preserve=all "$SLURM_SUBMIT_DIR/run_slam.py" "$SLURM_SUBMIT_DIR/run_evaluation.py" "$SLURM_SUBMIT_DIR/requirements.txt" "$SLURM_SUBMIT_DIR/.gitmodules" code/
 cp -r --no-preserve=all "$HOME/job_results/6817/runtime" runtime
+cp -r --no-preserve=all "$HOME/projects/varsplat-m0-evalpins-20261124/wheels" eval_wheels
 python3 code/tools/m0/stage_tum.py "$HOME/projects/varsplat-m0-inputs-20261123/rgbd_dataset_freiburg1_desk.tgz" "$TMPDIR/input" --output results/input_integrity.json
 cp --no-preserve=all "$PROJECT_ROOT/baselines/author_fr1_desk/config.yaml" author_config.yaml
 cp --no-preserve=all "$PROJECT_ROOT/cache/torch/hub/netvlad/VGG16-NetVLAD-Pitts30K.mat" cache/torch/hub/netvlad/
 cp --no-preserve=all "$HOME/projects/varsplat-m0-environment-20261123/models/alexnet-owt-7be5be79.pth" cache/torch/hub/checkpoints/
 export PYTHONDONTWRITEBYTECODE=1
 export MPLCONFIGDIR="$TMPDIR/mpl"
+export MPLBACKEND=Agg
+export PIP_CACHE_DIR="$TMPDIR/pip-cache"
 export XDG_CACHE_HOME="$TMPDIR/cache"
 export HF_HUB_OFFLINE=1
 export TRANSFORMERS_OFFLINE=1
@@ -37,9 +40,12 @@ apptainer exec --nv --home "$TMPDIR/home" --bind "$TMPDIR:$TMPDIR" --bind "$PROJ
 set -euo pipefail
 source "$PROJECT_ROOT/scripts/env.sh"
 cd "$TMPDIR/code"
+python -m pip install --no-index --find-links "$TMPDIR/eval_wheels" --no-build-isolation --no-deps \
+  --target "$TMPDIR/eval_pins" --report "$TMPDIR/results/eval_pins_install.json" evo==1.11.0 matplotlib==3.5.1
 export TORCH_HOME="$TMPDIR/cache/torch"
 export HF_HOME="$TMPDIR/cache/huggingface"
-export PYTHONPATH="$PWD:$TMPDIR/runtime:$PROJECT_ROOT/thirdparty/Hierarchical-Localization:$PROJECT_ROOT/thirdparty/evaluate_3d_reconstruction_lib"
+export PYTHONPATH="$PWD:$TMPDIR/eval_pins:$TMPDIR/runtime:$PROJECT_ROOT/thirdparty/Hierarchical-Localization:$PROJECT_ROOT/thirdparty/evaluate_3d_reconstruction_lib"
+python -B tools/m0/configure_plotting.py
 CONFIG="configs/TUM_RGBD/rgbd_dataset_freiburg1_desk.yaml"
 if [ "$M0_CONFIG_FLAVOR" = author ]; then CONFIG="$TMPDIR/author_config.yaml"; fi
 python -B tools/m0/check_environment.py --output "$TMPDIR/results/environment.json"

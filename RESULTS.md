@@ -1,6 +1,6 @@
 # VarSplat research results
 
-## M0 — source and reproduction status (23 November 2026)
+## M0 — source and reproduction status (24 November 2026)
 
 Upstream: `4a21a0aaade40b7c42d47181108e49a8a0e695f2`. Local research
 branch: `research/m0-reproduction`. Hosted fork:
@@ -39,7 +39,25 @@ runtime comparisons must use our own paired reproduction.
 | 6816 | Setup failed in 15 s | Compute-node PyPI TLS hostname mismatch; no TLS bypass. Stage hash-verified wheels through working login HTTPS, then install offline in scratch |
 | 6817 | Environment check passed in 47 s | Isolated official FAISS GPU 1.16.0 + PyCG; NumPy and Torch unchanged. GPU NumPy/Torch searches match exact L2 reference. Imports pass; this did not validate dataset images |
 | 6818, 6819 | Failed before tracking, 38 s each | Old dataset retained lists/poses but most images had been retired. Recovered verified existing local dataset backup; no new dataset download |
-| 6820, 6821 | Submitted | Author-config and repository-config seed-0 baselines, with archive hash and every listed PNG checked before SLAM |
+| 6820, 6821 | Failed at first PGO diagnostics (18:45 / 15:27 job elapsed) | Both reached tracking, mapping and loop registration. Installed evo 1.31.1 lacks `trajectory.align_trajectory`, which upstream calls. These are incomplete runs, not baselines |
+
+24 November follow-up: stage the repository-pinned `evo==1.11.0` and
+`matplotlib==3.5.1` in a separate overlay, keeping old environments intact.
+Preflight now executes the actual upstream trajectory alignment and plot export,
+two original refinement iterations on a small synthetic fixture, and offline
+LPIPS/MS-SSIM. A full run starts only if those checks pass. No algorithm change.
+Jobs 6822/6823 stopped in preflight because evo's own default selected `TkAgg`,
+overriding `MPLBACKEND=Agg`. Configure `plot_backend=Agg` in evo's isolated scratch
+settings before imports. Jobs 6824/6825 then stopped in preflight because the checker
+assumed an `evo.__version__` attribute absent in 1.11.0. The checker now reads installed
+distribution metadata and records the imported module path. Replacement seed-0 jobs
+6826 (author config) and 6827 (repository config) passed all expanded preflight checks
+and reached tracking (frames 159 / 194 at the 14-minute check); no SLAM source changes.
+The checks cover actual upstream Evo plotting, two synthetic refinement steps,
+offline AlexNet LPIPS and MS-SSIM, and both NumPy/Torch GPU FAISS operations.
+Synthetic smoke-test values are not benchmark results.
+Whole-home usage was remeasured at 48,782,098,432 bytes before submission; 12 GB of
+return space is reserved for the pair, below the 200 GB hard cap.
 
 The author checkpoint config is **not identical** to current repository defaults:
 
