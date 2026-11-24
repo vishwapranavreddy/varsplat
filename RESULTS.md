@@ -102,6 +102,10 @@ missing/duplicate/non-finite measurements (16 total checks). A supplemental GPU
 replay script is prepared but not yet validated on a completed baseline; it reloads
 the upstream global PLY and requires native-subset quality parity before accepting
 full-sequence observed-view quality. No quality gain is claimed from this addition.
+Three staging-boundary checks also pass (19 CPU checks total). Input restoration,
+Replica archive contents and unresolved reference assets are tracked in
+[M0_INPUTS.md](docs/M0_INPUTS.md). The four remaining TUM downloads are in progress,
+not verified inputs yet.
 Runtime packages are recorded with import-path precedence in new baseline reports;
 the older environment diagnostic's flat distribution listing can show a shadowed version
 (e.g. OmegaConf) and must not be treated as the imported module version.
