@@ -135,6 +135,33 @@ coverage; establish a common evaluation frame set before comparing such runs. Ev
 exceptions are logged as failures, even when SLAM finished. Never relabel a failed
 quality evaluation as a fully reproduced baseline.
 
+### Supplemental fixed-frame audit
+
+`tools/analysis/fixed_frames.py` evaluates every associated observed input frame from
+the saved, upstream-refined global PLY. This is a separate coverage protocol, not the
+paper's native exported-keyframe score and not an unseen-view generalization test.
+It does not retrain the map or change the saved trajectory. It verifies input bytes,
+association count, pose ATE, source/native/package identity and offline metric weights.
+The subset corresponding to upstream exported frames must reproduce the original
+quality means within declared tolerances (PSNR 0.001 dB; other metrics 0.00001).
+Per-frame measurements make coverage differences reviewable. Parity failure is a
+failure, not permission to silently relax the tolerance.
+
+After a baseline has **completed** and an account slot is free, its GPU replay command is:
+
+```bash
+python -B tools/analysis/fixed_frames.py \
+  --run-dir /scratch/path/to/copied/completed/run \
+  --input /scratch/path/to/verified/associated/dataset \
+  --output /scratch/path/to/results/fixed_frames.json
+```
+
+The accompanying `fixed_frames.slurm` stages the verified fr1/desk assets and accepts
+one completed baseline job ID. Deploy it with the same frozen source as the baseline.
+It has passed CPU coverage checks and Bash syntax validation; full GPU replay remains
+pending. Do not execute it concurrently on a GPU running a timed baseline. Keep its
+wall time separate from SLAM and from the original upstream evaluation.
+
 ## Remaining M0 work
 
 Finish the two configuration arms and seed repetitions; measure profiling overhead;

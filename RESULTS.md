@@ -56,6 +56,8 @@ and reached tracking (frames 159 / 194 at the 14-minute check); no SLAM source c
 The checks cover actual upstream Evo plotting, two synthetic refinement steps,
 offline AlexNet LPIPS and MS-SSIM, and both NumPy/Torch GPU FAISS operations.
 Synthetic smoke-test values are not benchmark results.
+Both jobs subsequently completed their first pose graph and diagnostic plots;
+the 20-minute check observed frames 224 / 295. Full metrics remain pending.
 Whole-home usage was remeasured at 48,782,098,432 bytes before submission; 12 GB of
 return space is reserved for the pair, below the 200 GB hard cap.
 
@@ -95,6 +97,11 @@ leakage and the doubled red derivative in this test.
 Local validation: 14 unittest checks passed (strict SE(3), seed aggregation, source/config/input
 comparability, non-finite values, profiler failure propagation, exact-process memory
 attribution and time-window coverage). Python compilation and Bash syntax checks passed.
+Two additional CPU checks validate fixed-frame metric coverage and rejection of
+missing/duplicate/non-finite measurements (16 total checks). A supplemental GPU
+replay script is prepared but not yet validated on a completed baseline; it reloads
+the upstream global PLY and requires native-subset quality parity before accepting
+full-sequence observed-view quality. No quality gain is claimed from this addition.
 Runtime packages are recorded with import-path precedence in new baseline reports;
 the older environment diagnostic's flat distribution listing can show a shadowed version
 (e.g. OmegaConf) and must not be treated as the imported module version.
