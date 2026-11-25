@@ -1,5 +1,11 @@
 # M0 input readiness — 24 November 2026
 
+26 November update: all four remaining TUM archives (desk2, room, xyz and
+long_office_household) now have verified final byte counts and SHA-256 values in
+`../cluster_preflight/varsplat-m0-tum-inputs-20261124.json`. This supersedes the
+pending-transfer states below. Scratch extraction/decoding for these scenes has
+not yet run. No dataset was downloaded to the assistant workspace.
+
 This inventory distinguishes existing archives, completed extraction checks, and
 pending transfers. A metadata directory alone is not a usable RGB-D dataset.
 The benchmark runner hashes every associated RGB/depth file and the associated

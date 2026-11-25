@@ -1,5 +1,25 @@
 # M0 execution and interpretation
 
+26 November continuation: seed-1 jobs 6830/6831 completed. Seed-2 jobs 6833/6834
+are running from `~/projects/varsplat-m0-seed2-20261125`. Their launcher appends
+two supplemental rendering audits after measured SLAM: `fixed_frames.json` for
+seed 2 and `prior_fixed_frames.json` for seed 1. Retrieve both files; the latter
+belongs to the earlier baseline job identified by its embedded hash/job ID.
+Do not associate a replay with a baseline solely by its enclosing job directory.
+
+The explicit local post-run helper `work/summarize_desk_campaign.py` (workspace
+root) joins seed-0 replays 6828/6829 with both seed-2 job outputs, validates process
+memory samples and writes `outputs/cluster_preflight/desk_three_seed_summary.json`.
+It requires all six completed reports and rejects missing evidence. It does not
+submit jobs or run in the background.
+
+For the remaining published TUM sequences, the additive
+`tools/analysis/tum_baseline.slurm SCENE SEED wall` launcher uses the untouched
+repository scene config, verified archive staging and post-run fixed-frame
+rendering. It does not infer author checkpoint settings. Account/storage checks
+must precede each submission; never queue a third job. Full scratch extraction
+and runtime preflight remain to be tested for those sequences.
+
 The assistant runs the cluster campaign. These commands make each run reproducible;
 they are not a request for the user to run the work manually.
 
