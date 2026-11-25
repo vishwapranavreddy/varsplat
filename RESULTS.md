@@ -1,5 +1,38 @@
 # VarSplat research results
 
+## 25 November continuation: Mamba recovery and M0 repetitions
+
+Recovered the frozen MambaVision-T + FAISS candidate and completed desk receipts
+from the other chat. See [MAMBA_RECOVERY.md](docs/MAMBA_RECOVERY.md) for source
+identity, active execution paths and prior positive/negative evidence. Those older
+bundled experiments are not merged into the current baseline repetitions.
+
+| Current full fr1/desk baseline | Seed | Job | SE3 ATE, cm | SLAM wall, min |
+|---|---:|---|---:|---:|
+| Author configuration | 0 | 6826 | 2.493786 | 56.2076 |
+| Author configuration | 1 | 6830 | 2.395647 | 53.9849 |
+| Repository configuration | 0 | 6827 | 1.493297 | 45.6697 |
+| Repository configuration | 1 | 6831 | 1.662930 | 45.3110 |
+
+Both seed-1 jobs completed with exit code zero and 592 poses. Their native
+rendering coverage is 540/520 frames, so native quality means are not pooled.
+Seed-2 jobs **6833/6834** were submitted after the account queue was checked empty.
+Their additive launcher runs unchanged SLAM first, then fixed-frame replays of
+both seed 2 and the corresponding seed-1 saved map. Replay time is outside SLAM
+timing; full batch time includes these extra audits.
+
+New `tools/analysis/aggregate_replays.py` joins reports by exact baseline hash,
+checks every frame and native-subset parity, and rejects mixed evaluator/weight
+identities. `uncertainty_audit.py` tests appearance calibration and scalar-weight
+invariance without changing the estimator. All **28 small CPU tests passed**.
+Both new Slurm launchers passed `bash -n` on the cluster before deployment.
+
+[M1_UNCERTAINTY.md](docs/M1_UNCERTAINTY.md) records analysis, four candidate
+interventions, prior-art checks, ablations and unresolved scene-split requirements.
+It is preparation only: M0 is incomplete, no M1 estimator flag is enabled, and no
+new accuracy/runtime gain or novelty is claimed. Original src/config/native paths
+remain intact. A three-seed result and multi-scene reproduction are still required.
+
 ## M0 — source and reproduction status (24 November 2026)
 
 Upstream: `4a21a0aaade40b7c42d47181108e49a8a0e695f2`. Local research

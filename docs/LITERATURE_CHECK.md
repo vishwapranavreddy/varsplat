@@ -1,5 +1,15 @@
 # Literature check — 2026-11-23
 
+25 November additions: [MMG-SLAM](https://github.com/CoolSunflower/MMG-SLAM)
+already integrates MambaVision descriptors with Gaussian SLAM; the recovered
+candidate explicitly follows its descriptor semantics.
+[BayesianGS-SLAM](https://arxiv.org/html/2609.24140v1) combines sensor and
+opacity-induced representation uncertainty for RGB/depth prediction, tracking
+and keyframe selection. [MonoCal](https://arxiv.org/html/2611.19188v1) separates
+scale and shape calibration without ground-truth depth. These materially narrow
+potential M1/M5 novelty claims. See the scoped hypotheses and limitations in
+[M1_UNCERTAINTY.md](M1_UNCERTAINTY.md).
+
 This is a scoped prior-art screen, not an exhaustive novelty determination. None of
 the proposed M1–M8 ideas is claimed original or better on this evidence alone.
 
