@@ -1,5 +1,37 @@
 # VarSplat research results
 
+## 26 November: first verified three-seed configuration
+
+Repository configuration, TUM fr1/desk, seeds 0/1/2, jobs 6827/6831/6834.
+All three completed; original source/native/package/input signatures match.
+Independent fixed-frame replays cover the same 592 frames and pass native-subset
+parity. Sample standard deviation uses ddof=1. This is unchanged VarSplat,
+not a measured algorithm improvement or complete multi-scene reproduction.
+
+| Metric | Mean | Sample std |
+|---|---:|---:|
+| All-frame SE3 ATE, cm | 1.830471 | 0.445248 |
+| SLAM wall, s | 2734.721832 | 14.144231 |
+| Seconds per input frame | 4.619463 | 0.023892 |
+| Fixed-frame PSNR, dB | 22.292048 | 0.274289 |
+| Fixed-frame MS-SSIM | 0.854617 | 0.008636 |
+| Fixed-frame Alex LPIPS | 0.308529 | 0.013226 |
+| Sampled driver process memory maximum, bytes | 3799340373 | 13482801 |
+
+Evidence: `../cluster_preflight/desk_three_seed_repository.json` contains source,
+protocol and baseline report identities. Replays for seeds 1 and 2 were produced
+after timed seed-2 SLAM and are excluded from its SLAM wall. Author seed 2 remains
+in progress at this update. The next M0 run profiles the repository configuration
+at seed 0; synchronized stage measurements will not enter wall-mode averages.
+
+Decision: the earlier 1.493 cm single-seed result is not a reliable improvement
+claim. Preserve the three-seed reference and use paired repeats for interventions.
+Continue the original module order; the loop-closure hypotheses and required
+ablations are in [M5_RESEARCH_PLAN.md](docs/M5_RESEARCH_PLAN.md). Each intervention
+must record hypothesis, flag, frozen comparison, failures, measured outcome and
+keep/reject decision. No learned model or heuristic is promoted merely because
+it improves one scene or one seed.
+
 ## 25 November continuation: Mamba recovery and M0 repetitions
 
 Recovered the frozen MambaVision-T + FAISS candidate and completed desk receipts
