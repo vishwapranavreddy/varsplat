@@ -1,5 +1,12 @@
 # M5 research plan: registration-aware temporal loop closure
 
+26 November measured prioritization: M0 profiler job 6835 used 487.425 s in loop
+closure, including 409.156 s in the pairwise wrapper; matching itself used 0.592 s.
+The wrapper includes identity/GT diagnostic work, so this is not a pure Gaussian
+solver timing. Favor investigating registration admission and graph preparation
+over search micro-optimization. This is one diagnostic trajectory, which did not
+match unprofiled seed-0 ATE; no causal speed claim follows (see RESULTS.md).
+
 26 November 2026. Research hypotheses only. M0 -> M1 -> M2 -> M3 -> M4 -> M5
 execution order remains in force; this document prepares the main research focus
 without claiming completion or skipping the baseline gate.

@@ -1,5 +1,55 @@
 # VarSplat research results
 
+## 26 November follow-up: both desk configurations and profiler complete
+
+All six desk runs and their full-frame rendering audits passed aggregation.
+Values are mean +/- sample standard deviation over seeds 0/1/2, with 592 frames.
+
+| Configuration | SE3 ATE, cm | SLAM wall, s | Fixed-frame PSNR | MS-SSIM | LPIPS |
+|---|---:|---:|---:|---:|---:|
+| Author | 2.448901 +/- 0.049602 | 3391.696 +/- 163.078 | 22.011004 +/- 0.158790 | 0.845717 +/- 0.005785 | 0.318776 +/- 0.006928 |
+| Repository | 1.830471 +/- 0.445248 | 2734.722 +/- 14.144 | 22.292048 +/- 0.274289 | 0.854617 +/- 0.008636 | 0.308529 +/- 0.013226 |
+
+Evidence: `../cluster_preflight/desk_three_seed_summary.json`. This is a
+configuration comparison within unchanged VarSplat, not a new algorithm.
+The fresh author configuration does not reproduce the paper's 1.80 cm desk ATE;
+the provided saved trajectory independently evaluates to 1.803 cm. Keep that
+discrepancy explicit. Multi-scene reproduction remains incomplete.
+
+Diagnostic profiler job 6835 completed, with 2708.581 s SLAM wall:
+
+| Stage | Inclusive seconds | Calls |
+|---|---:|---:|
+| Tracking | 1530.825 | 590 |
+| Mapping | 673.722 | 592 |
+| Loop closure | 487.425 | 14 |
+| Pairwise registration wrapper, nested in graph construction | 409.156 | 226 |
+| Submap descriptor/reliability preparation | 11.461 | 14 |
+| Descriptor matching | 0.592 | 68 |
+| Pose graph numerical optimization | 0.010 | 7 |
+
+Nested rows must not be added to their parents. The pairwise wrapper includes
+identity and ground-truth diagnostic calls, which also build point clouds/normals;
+226 is NOT the number of fresh Gaussian-registration optimizations. A finer
+method-tagged diagnostic is needed before attributing all 409 seconds to those
+optimizations. `profile_summary.json` reconciles exclusive totals with SLAM wall.
+
+Profiler ATE was 1.814505 cm versus 1.493297 cm for the unprofiled repository
+seed-0 run. Trajectory parity is therefore NOT established. Its 1.15% lower wall
+time cannot be interpreted as profiler overhead or an improvement. Timings are
+diagnostic evidence for this run only, outside the three-seed wall averages.
+
+Decision: registration/graph preparation merits investigation for loop speed;
+descriptor matching alone is a negligible fraction on this scene. Tracking is
+the largest system cost. Follow M1 then M2 onward; do not jump to an unmeasured
+Mamba replacement based only on retrieval latency.
+
+Next full baseline jobs: 6837 (TUM desk2, seed 0) and 6838 (TUM room, seed 0),
+both repository configuration with fixed-frame audits after measured SLAM.
+Submission checked the empty account queue, frozen Python source, verified input
+receipts and a conservative 97.54 GB storage total including outstanding/new
+return reservations. This is a reservation bound, not actual disk usage.
+
 ## 26 November: first verified three-seed configuration
 
 Repository configuration, TUM fr1/desk, seeds 0/1/2, jobs 6827/6831/6834.
